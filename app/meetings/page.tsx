@@ -1,13 +1,25 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { MeetingCard } from "@/components/MeetingCard";
-import { getMeetings } from "@/lib/meetings-db";
+import { getApiUrl } from "@/lib/api-url";
+import type { SacramentMeeting } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "All Meetings",
 };
 
-export default function MeetingsPage() {
-  const meetings = getMeetings();
+export default async function MeetingsPage() {
+  await connection();
+
+  const response = await fetch(await getApiUrl("/api/meetings"), {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to load meetings.");
+  }
+
+  const meetings: SacramentMeeting[] = await response.json();
 
   return (
     <div>

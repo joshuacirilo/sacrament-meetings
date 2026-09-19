@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Hymn, SacramentMeeting } from "@/lib/types";
+import { PrintButton } from "./PrintButton";
 
 interface MeetingDetailProps {
   meeting: SacramentMeeting;
@@ -39,8 +40,10 @@ function HymnDetails({ hymn }: { hymn: Hymn }) {
 
 export function MeetingDetail({ meeting }: MeetingDetailProps) {
   return (
-    <article className="print-program mx-auto w-full max-w-3xl bg-surface p-5 shadow-sm sm:p-8">
-      <header className="border-b-2 border-accent pb-6 text-center">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+      <PrintButton />
+      <article className="print-program w-full bg-surface p-5 shadow-sm sm:p-8">
+        <header className="border-b-2 border-accent pb-6 text-center">
         <p className="text-sm font-semibold uppercase text-accent">
           {meetingTypeLabels[meeting.meetingType]}
         </p>
@@ -50,9 +53,9 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
         <time className="mt-2 block text-muted" dateTime={meeting.date}>
           {dateFormatter.format(new Date(`${meeting.date}T00:00:00Z`))}
         </time>
-      </header>
+        </header>
 
-      <dl className="mt-4">
+        <dl className="mt-4">
         <AgendaRow label="Presiding">{meeting.presiding}</AgendaRow>
         <AgendaRow label="Conducting">{meeting.conducting}</AgendaRow>
         <AgendaRow label="Announcements">
@@ -109,7 +112,8 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
           <HymnDetails hymn={meeting.closingHymn} />
         </AgendaRow>
         <AgendaRow label="Closing prayer">{meeting.closingPrayer}</AgendaRow>
-      </dl>
-    </article>
+        </dl>
+      </article>
+    </div>
   );
 }

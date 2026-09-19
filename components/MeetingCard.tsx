@@ -28,9 +28,9 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
           <p className="text-sm font-semibold text-accent">
             {meetingTypeLabels[meeting.meetingType]}
           </p>
-          <h2 className="mt-1 text-xl font-semibold text-foreground">
+          <h3 className="mt-1 text-xl font-semibold text-foreground">
             {dateFormatter.format(new Date(`${meeting.date}T00:00:00Z`))}
-          </h2>
+          </h3>
         </div>
         {meeting.stakeBusiness && (
           <span className="border border-border-strong bg-background px-2 py-1 text-xs font-medium text-muted">

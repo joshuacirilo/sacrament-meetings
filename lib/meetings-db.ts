@@ -101,12 +101,20 @@ const meetings: SacramentMeeting[] = [
   },
 ];
 
-export function getMeetings(): SacramentMeeting[] {
-  return [...meetings].sort((a, b) => b.date.localeCompare(a.date));
+export function getMeetings(date?: string | null): SacramentMeeting[] {
+  const results = date
+    ? meetings.filter((meeting) => meeting.date === date)
+    : meetings;
+
+  return [...results].sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export function getMeetingById(id: number): SacramentMeeting | undefined {
   return meetings.find((meeting) => meeting.id === id);
+}
+
+export function getMeetingByDate(date: string): SacramentMeeting | undefined {
+  return meetings.find((meeting) => meeting.date === date);
 }
 
 export function getCurrentMeeting(
