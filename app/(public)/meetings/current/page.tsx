@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { getMeetingByDate } from "@/lib/meetings-db";
 
 export const metadata: Metadata = {
@@ -14,12 +15,14 @@ function formatLocalDate(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-export default function CurrentMeetingPage() {
+export default async function CurrentMeetingPage() {
+  await connection();
+
   const today = new Date();
   const sunday = new Date(today);
   sunday.setDate(today.getDate() - today.getDay());
 
-  const meeting = getMeetingByDate(formatLocalDate(sunday));
+  const meeting = await getMeetingByDate(formatLocalDate(sunday));
 
   if (!meeting) {
     redirect("/meetings");
