@@ -20,7 +20,8 @@ export default async function CurrentMeetingPage() {
 
   const today = new Date();
   const sunday = new Date(today);
-  sunday.setDate(today.getDate() - today.getDay());
+  // Use the upcoming Sunday, keeping today's date when it is already Sunday.
+  sunday.setDate(today.getDate() + ((7 - today.getDay()) % 7));
 
   const meeting = await getMeetingByDate(formatLocalDate(sunday));
 

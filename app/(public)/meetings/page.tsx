@@ -1,25 +1,24 @@
 import type { Metadata } from "next";
-import { connection } from "next/server";
 import { MeetingCard } from "@/components/MeetingCard";
-import { getApiUrl } from "@/lib/api-url";
-import type { SacramentMeeting } from "@/lib/types";
+import { MeetingSearch } from "@/components/MeetingSearch";
+import { Pagination } from "@/components/Pagination";
+import { getMeetings, getMeetingsTotalPages } from "@/lib/meetings-db";
 
 export const metadata: Metadata = {
   title: "All Meetings",
 };
 
-export default async function MeetingsPage() {
-  await connection();
+export default async function MeetingsPage(props: {
+  searchParams?: Promise<{ query?: string; page?: string }>;
+}) {
+  const searchParams = await props.searchParams;
+  const query = searchParams?.query ?? "";
+  const currentPage = Number(searchParams?.page) || 1;
 
-  const response = await fetch(await getApiUrl("/api/meetings"), {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("Unable to load meetings.");
-  }
-
-  const meetings: SacramentMeeting[] = await response.json();
+  const [meetings, totalPages] = await Promise.all([
+    getMeetings(query, currentPage),
+    getMeetingsTotalPages(query),
+  ]);
 
   return (
     <div>
@@ -33,11 +32,23 @@ export default async function MeetingsPage() {
         </p>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        {meetings.map((meeting) => (
-          <MeetingCard key={meeting.id} meeting={meeting} />
-        ))}
+      <div className="mb-6">
+        <MeetingSearch />
       </div>
+
+      {meetings.length ? (
+        <div className="grid gap-5 lg:grid-cols-2">
+          {meetings.map((meeting) => (
+            <MeetingCard key={meeting.id} meeting={meeting} />
+          ))}
+        </div>
+      ) : (
+        <p className="border border-border bg-surface p-5 text-muted">
+          No meetings match your search.
+        </p>
+      )}
+
+      <Pagination totalPages={totalPages} />
     </div>
   );
 }
