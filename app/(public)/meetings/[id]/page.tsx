@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { MeetingDetail } from "@/components/MeetingDetail";
-import { getApiUrl } from "@/lib/api-url";
-import type { SacramentMeeting } from "@/lib/types";
+import { getMeetingById } from "@/lib/meetings-db";
 
 export const metadata: Metadata = {
   title: "Meeting Program",
@@ -15,19 +14,16 @@ export default async function MeetingDetailPage({
   const { id } = await params;
   await connection();
 
-  const response = await fetch(await getApiUrl(`/api/meetings/${id}`), {
-    cache: "no-store",
-  });
-
-  if (response.status === 400 || response.status === 404) {
+  const meetingId = Number(id);
+  if (!Number.isInteger(meetingId)) {
     notFound();
   }
 
-  if (!response.ok) {
-    throw new Error("Unable to load the meeting.");
-  }
+  const meeting = await getMeetingById(meetingId);
 
-  const meeting: SacramentMeeting = await response.json();
+  if (!meeting) {
+    notFound();
+  }
 
   return <MeetingDetail meeting={meeting} />;
 }
