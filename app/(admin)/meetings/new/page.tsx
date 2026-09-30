@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CreateMeetingForm } from "@/components/CreateMeetingForm";
 
 export const metadata: Metadata = {
   title: "Create Meeting",
@@ -6,8 +7,11 @@ export const metadata: Metadata = {
 
 export default function NewMeetingPage() {
   return (
-    <h2 className="text-3xl font-semibold text-foreground">
-      Create Meeting — Coming in Week 04
-    </h2>
+    <div className="mx-auto w-full max-w-3xl">
+      <h2 className="mb-6 text-3xl font-semibold text-foreground">
+        Create meeting
+      </h2>
+      <CreateMeetingForm />
+    </div>
   );
 }

@@ -59,15 +59,16 @@ export function MeetingsNav() {
     <nav aria-label="Meetings navigation">
       <ul className="flex flex-wrap gap-2">
         {meetingLinks.map((link) => {
+          const isCurrentPage = pathname === link.href;
           const isActive =
-            pathname === link.href ||
+            isCurrentPage ||
             (link.href === "/meetings" && /^\/meetings\/\d+$/.test(pathname));
 
           return (
             <li key={link.href}>
               <Link
                 href={link.href}
-                aria-current={isActive ? "page" : undefined}
+                aria-current={isCurrentPage ? "page" : isActive ? "true" : undefined}
                 className={`inline-flex min-h-10 items-center border px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
                   isActive
                     ? "border-accent bg-accent text-white"

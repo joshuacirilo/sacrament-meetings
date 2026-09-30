@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { SacramentMeeting } from "@/lib/types";
+import { DeleteMeetingForm } from "./DeleteMeetingForm";
 
 interface MeetingCardProps {
   meeting: SacramentMeeting;
@@ -21,6 +22,10 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 export function MeetingCard({ meeting }: MeetingCardProps) {
+  const formattedDate = dateFormatter.format(
+    new Date(`${meeting.date}T00:00:00Z`),
+  );
+
   return (
     <article className="flex h-full flex-col border border-border bg-surface p-5 shadow-sm transition hover:border-border-strong hover:shadow-md">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -29,7 +34,7 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
             {meetingTypeLabels[meeting.meetingType]}
           </p>
           <h3 className="mt-1 text-xl font-semibold text-foreground">
-            {dateFormatter.format(new Date(`${meeting.date}T00:00:00Z`))}
+            {formattedDate}
           </h3>
         </div>
         {meeting.stakeBusiness && (
@@ -50,12 +55,21 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
         </div>
       </dl>
 
-      <Link
-        href={`/meetings/${meeting.id}`}
-        className="mt-6 inline-flex min-h-11 items-center justify-center self-start bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-      >
-        View program
-      </Link>
+      <div className="mt-auto flex flex-wrap gap-3 pt-6">
+        <Link
+          href={`/meetings/${meeting.id}`}
+          className="inline-flex min-h-11 items-center justify-center bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          View program
+        </Link>
+        <Link
+          href={`/meetings/${meeting.id}/edit`}
+          className="inline-flex min-h-11 items-center justify-center border border-border-strong bg-surface px-4 text-sm font-semibold text-foreground transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          Edit<span className="sr-only"> program for {formattedDate}</span>
+        </Link>
+        <DeleteMeetingForm id={meeting.id} label={formattedDate} />
+      </div>
     </article>
   );
 }

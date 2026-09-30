@@ -9,7 +9,8 @@ export default function HomePage() {
         alt="Maple Grove Ward meetinghouse surrounded by trees on a Sunday morning"
         width={1920}
         height={818}
-        loading="lazy"
+        loading="eager"
+        fetchPriority="high"
         sizes="(max-width: 768px) 100vw, 1152px"
         className="aspect-[16/7] w-full object-cover"
       />
