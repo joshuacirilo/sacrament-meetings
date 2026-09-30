@@ -42,14 +42,19 @@ export function MeetingSearch() {
   }, [query, handleSearch]);
 
   return (
-    <input
-      ref={inputRef}
-      type="search"
-      placeholder="Search by speaker, leader, or meeting type..."
-      defaultValue={query}
-      onChange={(event) => handleSearch(event.target.value)}
-      aria-label="Search meetings"
-      className="min-h-11 w-full max-w-xl border border-border-strong bg-surface px-4 text-foreground placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-    />
+    <div className="max-w-xl">
+      <label htmlFor="meeting-search" className="block text-sm font-semibold text-foreground">
+        Search meetings
+      </label>
+      <input
+        ref={inputRef}
+        id="meeting-search"
+        type="search"
+        placeholder="Speaker, leader, meeting type, or date"
+        defaultValue={query}
+        onChange={(event) => handleSearch(event.target.value)}
+        className="mt-1 min-h-11 w-full border border-border-strong bg-surface px-4 text-foreground placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      />
+    </div>
   );
 }

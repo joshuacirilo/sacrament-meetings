@@ -61,8 +61,8 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
         <AgendaRow label="Announcements">
           {meeting.announcements?.length ? (
             <ul className="list-disc space-y-1 pl-5">
-              {meeting.announcements.map((announcement) => (
-                <li key={announcement}>{announcement}</li>
+              {meeting.announcements.map((announcement, index) => (
+                <li key={`${announcement}-${index}`}>{announcement}</li>
               ))}
             </ul>
           ) : (
@@ -96,11 +96,13 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
               {meeting.speakers.map((item, index) => (
                 <li key={`${item.name}-${index}`}>
                   <p className="font-semibold">{item.name}</p>
-                  <p className="mt-1 text-sm text-muted">
-                    {item.type === "musical-number"
-                      ? `Musical number: ${item.topic}`
-                      : `Topic: ${item.topic}`}
-                  </p>
+                  {(item.topic || item.type === "musical-number") && (
+                    <p className="mt-1 text-sm text-muted">
+                      {item.type === "musical-number"
+                        ? `Musical number${item.topic ? `: ${item.topic}` : ""}`
+                        : `Topic: ${item.topic}`}
+                    </p>
+                  )}
                 </li>
               ))}
             </ol>
