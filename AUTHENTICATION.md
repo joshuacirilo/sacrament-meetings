@@ -13,8 +13,7 @@ pnpm run dev
 ```
 
 In PowerShell environments that block `.ps1` wrappers, use `pnpm.cmd`.
-The setup command prompts for your email and a hidden password (at least 12
-characters, at most 72 UTF-8 bytes). It writes the email, a bcrypt hash, and an
+The setup command prompts for your email and a hidden password (1 to 256 characters). It writes the email, the literal password, and an
 AUTH_SECRET to the ignored `.env.local`; existing database variables are preserved.
 It does not print credentials. Running it again replaces the configured account.
 Restart the app after changing environment variables.
@@ -32,13 +31,14 @@ or deployment, then redeploy:
 | --- | --- |
 | `AUTH_SECRET` | Random secret of at least 32 bytes; use a different secret per environment. |
 | `AUTH_LEADER_EMAIL` | Authorized leader's email. |
-| `AUTH_LEADER_PASSWORD_HASH` | bcrypt hash created by `pnpm run auth:setup`. |
+| `AUTH_LEADER_PASSWORD` | The literal login password. |
 
-Never use a `NEXT_PUBLIC_` prefix or commit `.env.local`. Next.js expands `$` in
-local dotenv files, so the setup script escapes the dollar signs in the bcrypt
-hash. In the Vercel environment-variable UI, paste the actual hash with plain `$`
-characters (remove the dotenv backslashes). For a non-Vercel production host,
-configure `AUTH_URL` to the app's canonical HTTPS origin.
+Never use a `NEXT_PUBLIC_` prefix or commit `.env.local`. Passwords are stored
+as literal server-only environment variables at the user's request. In Vercel,
+enter the password directly, without surrounding quotes. Remove the obsolete
+`AUTH_LEADER_PASSWORD_HASH` variable. Keep `AUTH_SECRET`: Auth.js needs it for
+sessions, independently of password storage. Redeploy after changing variables.
+For a non-Vercel production host, configure `AUTH_URL` to the canonical HTTPS origin.
 
 No database migration is required. Missing leader credentials fail closed: nobody
 can log in. Sessions use signed/encrypted JWT cookies and expire after eight hours.
@@ -48,8 +48,8 @@ Changing the password does not invalidate already issued sessions; rotate
 ## Protection
 
 - `auth.config.ts`: common session configuration and route authorization.
-- `auth.ts`: Credentials provider, Zod validation, bcrypt verification. Only the
-  account ID, name, and email enter the session; passwords/hashes never do.
+- `auth.ts`: Credentials provider, Zod validation, literal password comparison. Only the
+  account ID, name, and email enter the session; passwords never do.
 - `proxy.ts`: redirects anonymous requests for `/meetings/new` and
   `/meetings/:id/edit`. Next.js 16 renamed middleware to Proxy.
 - Administrative layout and pages also require a session before rendering or

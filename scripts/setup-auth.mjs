@@ -2,7 +2,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { createInterface } from "node:readline/promises";
 import { Writable } from "node:stream";
-import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 // Hide password keystrokes and keep credentials out of shell history.
@@ -17,26 +16,28 @@ const prompt = createInterface({ input: process.stdin, output, terminal: true })
 try {
   const email = (await prompt.question("Leader email: ")).trim().toLowerCase();
   if (!z.email().safeParse(email).success) throw new Error("Enter a valid email.");
-  process.stdout.write("Leader password (12 or more characters; hidden): ");
+  process.stdout.write("Leader password (hidden): ");
   hidden = true;
   const password = await prompt.question("");
   hidden = false;
   process.stdout.write("\n");
-  if (password.length < 12 || Buffer.byteLength(password, "utf8") > 72) {
-    throw new Error("Use at least 12 characters and no more than 72 UTF-8 bytes.");
+  if (password.length < 1 || password.length > 256) {
+    throw new Error("Use between 1 and 256 characters.");
   }
   let contents = await readFile(".env.local", "utf8").catch((error) => {
     if (error.code === "ENOENT") return "";
     throw error;
   });
+  contents = contents.replace(/^AUTH_LEADER_PASSWORD_HASH=.*\r?\n?/gm, "");
+  if (/["\\\r\n]/.test(password)) throw new Error("Do not use double quotes, backslashes, or line breaks in the password.");
   const entries = {
     AUTH_LEADER_EMAIL: email,
-    AUTH_LEADER_PASSWORD_HASH: await bcrypt.hash(password, 12),
+    AUTH_LEADER_PASSWORD: password,
   };
   if (!/^AUTH_SECRET=.+$/m.test(contents)) entries.AUTH_SECRET = randomBytes(32).toString("base64");
   for (const [key, value] of Object.entries(entries)) {
     // Next.js expands dollar signs even in quoted dotenv values.
-    const line = `${key}=${value.replaceAll("$", "\\$")}`;
+    const line = `${key}="${value.replaceAll("$", "\\$")}"`;
     const pattern = new RegExp(`^${key}=.*$`, "m");
     contents = pattern.test(contents)
       ? contents.replace(pattern, () => line)
