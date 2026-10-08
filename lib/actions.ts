@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { requireLeaderSession } from "./auth-session";
 import * as db from "./meetings-db";
 import type {
   Hymn,
@@ -10,8 +11,6 @@ import type {
   MeetingFormValues,
   MeetingInput,
 } from "./types";
-
-// TODO(Week 05): check the leader session here before any mutation.
 
 const MAX_INT4 = 2147483647;
 
@@ -192,6 +191,7 @@ export async function createMeeting(
   _prevState: MeetingFormState,
   formData: FormData,
 ): Promise<MeetingFormState> {
+  await requireLeaderSession();
   const values = readFormValues(formData);
   const validated = MeetingFormSchema.safeParse(values);
 
@@ -222,6 +222,7 @@ export async function updateMeeting(
   _prevState: MeetingFormState,
   formData: FormData,
 ): Promise<MeetingFormState> {
+  await requireLeaderSession();
   const values = readFormValues(formData);
 
   if (!MeetingIdSchema.safeParse(id).success) {
@@ -259,6 +260,7 @@ export async function updateMeeting(
 }
 
 export async function deleteMeeting(id: number): Promise<void> {
+  await requireLeaderSession();
   if (!MeetingIdSchema.safeParse(id).success) {
     throw new Error("Invalid meeting ID.");
   }

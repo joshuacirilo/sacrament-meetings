@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { auth } from "@/auth";
 import { MeetingCard } from "@/components/MeetingCard";
 import { MeetingSearch } from "@/components/MeetingSearch";
 import { Pagination } from "@/components/Pagination";
@@ -20,9 +21,10 @@ export default async function MeetingsPage(props: {
   const query = searchParams?.query ?? "";
   const currentPage = Number(searchParams?.page) || 1;
 
-  const [meetings, totalCount] = await Promise.all([
+  const [meetings, totalCount, session] = await Promise.all([
     getMeetings(query, currentPage),
     getMeetingsCount(query),
+    auth(),
   ]);
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -42,12 +44,14 @@ export default async function MeetingsPage(props: {
             Review current and past meeting agendas for Maple Grove Ward.
           </p>
         </div>
-        <Link
-          href="/meetings/new"
-          className="inline-flex min-h-11 items-center justify-center bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >
-          New meeting
-        </Link>
+        {session?.user && (
+          <Link
+            href="/meetings/new"
+            className="inline-flex min-h-11 items-center justify-center bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            New meeting
+          </Link>
+        )}
       </div>
 
       <div className="mb-6">
@@ -61,7 +65,11 @@ export default async function MeetingsPage(props: {
       {meetings.length ? (
         <div className="grid gap-5 lg:grid-cols-2">
           {meetings.map((meeting) => (
-            <MeetingCard key={meeting.id} meeting={meeting} />
+            <MeetingCard
+              key={meeting.id}
+              meeting={meeting}
+              canManage={!!session?.user}
+            />
           ))}
         </div>
       ) : (
