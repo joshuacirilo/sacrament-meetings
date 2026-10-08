@@ -3,7 +3,6 @@ import { randomBytes } from "node:crypto";
 import { createRequire } from "node:module";
 import { spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
-import bcrypt from "bcryptjs";
 
 // Pass an external playwright-core installation; no test account is persisted.
 const require = createRequire(import.meta.url);
@@ -20,7 +19,7 @@ const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "star
     AUTH_URL: baseURL,
     AUTH_SECRET: randomBytes(32).toString("base64"),
     AUTH_LEADER_EMAIL: email,
-    AUTH_LEADER_PASSWORD_HASH: await bcrypt.hash(password, 12),
+    AUTH_LEADER_PASSWORD: password,
   },
 });
 let logs = "";
@@ -68,7 +67,7 @@ try {
   await page.getByRole("link", { name: "New meeting", exact: true }).waitFor();
   check(true, "Valid credentials open meetings with management controls");
   const session = await (await context.request.get("/api/auth/session")).json();
-  check(session.user.email === email && !JSON.stringify(session).includes("password"), "Session exposes user but no password/hash");
+  check(session.user.email === email && !JSON.stringify(session).includes("password"), "Session exposes user but no password");
   await page.goto("/login");
   await page.waitForURL("**/meetings");
   check(true, "Signed-in user is redirected away from login");
