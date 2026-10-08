@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EditMeetingForm } from "@/components/EditMeetingForm";
 import { getMeetingById } from "@/lib/meetings-db";
+import { requireLeaderSession } from "@/lib/auth-session";
 
 export const metadata: Metadata = {
   title: "Edit Meeting",
@@ -12,6 +13,7 @@ const MAX_INT4 = 2147483647;
 export default async function EditMeetingPage({
   params,
 }: PageProps<"/meetings/[id]/edit">) {
+  await requireLeaderSession();
   const { id } = await params;
   const meetingId = Number(id);
 
